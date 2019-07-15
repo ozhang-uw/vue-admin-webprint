@@ -42,6 +42,7 @@
       <el-form-item>
         <el-button type="primary" @click="onSubmit">Create</el-button>
         <el-button @click="onCancel">Cancel</el-button>
+        <el-button @click="onPrint">Print</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -72,6 +73,21 @@ export default {
         message: 'cancel!',
         type: 'warning'
       })
+    },
+    onPrint() {
+      this.$router.push({
+        name: 'Print',
+        query: {
+          name: !this.form.name ? ' ' : this.form.name,
+          region: !this.form.region ? ' ' : this.form.region,
+          date1: !this.form.date1 ? ' ' : this.form.date1.toLocaleDateString(),
+          date2: !this.form.date2 ? ' ' : this.form.date2.toLocaleTimeString(),
+          type: !this.form.type ? ' ' : this.form.type,
+          delivery: !this.form.delivery ? ' ' : this.form.delivery,
+          resources: !this.form.resource ? ' ' : this.form.resource,
+          desc: !this.form.desc ? ' ' : this.form.desc
+        }
+      })
     }
   }
 }
@@ -82,4 +98,3 @@ export default {
   text-align: center;
 }
 </style>
-

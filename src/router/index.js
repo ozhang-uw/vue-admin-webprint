@@ -86,6 +86,13 @@ export const constantRoutes = [
         name: 'Form',
         component: () => import('@/views/form/index'),
         meta: { title: 'Form', icon: 'form' }
+      },
+      {
+        path: 'print',
+        name: 'Print',
+        hidden: true,
+        component: () => import('@/views/form/component/index'),
+        meta: { title: 'Print', icon: 'form' }
       }
     ]
   },
@@ -144,6 +151,39 @@ export const constantRoutes = [
         path: 'menu2',
         component: () => import('@/views/nested/menu2/index'),
         meta: { title: 'menu2' }
+      }
+    ]
+  },
+
+  {
+    path: '/announcement',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Announcement',
+        component: () => import('@/views/announcement/index'),
+        meta: { title: 'Announcement', icon: 'eye' }
+      }
+    ]
+  },
+
+  {
+    path: '/webprint',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'WebPrint',
+        component: () => import('@/views/webprint/index'),
+        meta: { title: 'WebPrint', icon: 'user' }
+      },
+      {
+        path: 'result/:content/:vueScript/',
+        name: 'Result',
+        hidden: true,
+        component: () => import('@/views/webprint/component/result'),
+        meta: { title: 'Result' }
       }
     ]
   },
