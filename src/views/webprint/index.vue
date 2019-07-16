@@ -10,19 +10,19 @@
       <el-form ref="form" :model="form" label-width="90px" size="mini">
         <el-form-item label="页面">
           <el-row>
-            <el-col :span="6">
+            <el-col :span="10">
               <el-input v-model="form.pageSize" placeholder="大小" clearable />
             </el-col>
-            <el-col :span="6">
+            <el-col :span="10">
               <el-input v-model="form.pagePadding" placeholder="边距" clearable />
             </el-col>
           </el-row>
           <el-row>
             <el-col>
-              <el-col :span="12">
+              <el-col :span="20">
                 <span>页面缩放 </span><el-switch v-model="form.pageResize" />
               </el-col>
-              <el-col :span="3">
+              <el-col :span="4">
                 <el-button type="primary" @click="onPage">确认</el-button>
               </el-col>
             </el-col>
@@ -30,84 +30,85 @@
         </el-form-item>
         <el-form-item label="创建文字框">
           <el-row>
-            <el-col :span="6">
+            <el-col :span="10">
               <el-input v-model="form.textHeight" placeholder="高度" clearable />
             </el-col>
-            <el-col :span="6">
+            <el-col :span="10">
               <el-input v-model="form.textWidth" placeholder="宽度" clearable />
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="6">
+            <el-col :span="10">
               <el-input v-model="form.textSize" placeholder="字体大小" clearable />
             </el-col>
-            <el-col :span="6">
+            <el-col :span="10">
               <el-input v-model="form.textID" placeholder="ID" clearable />
             </el-col>
-            <el-col :span="3">
+            <el-col :span="4">
               <el-button type="primary" @click="onCreateText('textChild')">确认</el-button>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item label="创建线条">
           <el-row>
-            <el-col :span="6">
+            <el-col :span="8">
               <el-input v-model="form.lineLength" placeholder="长度" clearable />
             </el-col>
-            <el-col :span="7">
+            <el-col :span="12">
               <el-input v-model="form.lineBorder" placeholder="边框" clearable />
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="12">
+            <el-col :span="20">
               <span>横 </span><el-switch v-model="form.lineIsVertical" /><span> 竖</span>
             </el-col>
-            <el-col :span="3">
+            <el-col :span="4">
               <el-button type="primary" @click="onCreateLine('lineChild')">确认</el-button>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item label="图片选项">
           <el-row>
-            <el-col :span="10">
+            <el-col :span="14">
               <el-input v-model="form.inputImg" type="file" />
             </el-col>
-            <el-col :span="5">
+            <el-col :span="6">
               <el-input v-model="form.imgOpacity" type="primary" placeholder="清晰度" />
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="6">
+            <el-col :span="10">
               <span>隐藏 </span><el-switch v-model="form.imgHide" @change="onImgHide" />
             </el-col>
-            <el-col :span="8">
+            <el-col :span="10">
               <span>移动到背景 </span><el-switch v-model="form.imgBack" @change="onImgBack" />
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="16">
-              <el-button-group>
-                <el-button type="primary" :disabled="form.imgButton" @click="onImgSize()">页面大小一致</el-button>
-                <el-button type="primary" :disabled="form.imgButton" @click="onImgOrig()">返回初始位置</el-button>
-                <el-button type="primary" @click="onUpLoadImg()">载入</el-button>
-              </el-button-group>
-            </el-col>
+            <el-button-group>
+              <el-button type="primary" :disabled="form.imgButton" @click="onImgSize()">页面大小一致</el-button>
+              <el-button type="primary" :disabled="form.imgButton" @click="onImgOrig()">返回初始位置</el-button>
+              <el-button type="primary" @click="onUpLoadImg()">载入</el-button>
+            </el-button-group>
           </el-row>
         </el-form-item>
-        <el-form-item label="删除上一个">
-          <el-col :span="15">
-            <el-button type="primary" @click="onDeleteLast()">确认</el-button>
+        <el-form-item label="元素对齐">
+          <el-col :span="20">
+            <span>按下键盘v或h键并点击需要对齐的元素，</span>
+            <span>松开后以点击的第一个元素为基准对齐。</span>
+            <span>v为垂直对齐，h为水平对齐</span>
           </el-col>
         </el-form-item>
+        <el-form-item label="删除上一个">
+          <el-button type="primary" @click="onDeleteLast()">确认</el-button>
+        </el-form-item>
         <el-form-item label="导出">
-          <el-col :span="15">
-            <el-button type="primary" @click="onExport()">确认</el-button>
-          </el-col>
+          <el-button type="primary" @click="onExport()">确认</el-button>
         </el-form-item>
       </el-form>
     </div>
 
-    <div class="graphic-interface">
+    <div class="graphic-interface" tabindex="100">
       <img id="imgBlock" :src="imgSrc" :style="imgStyle" @mousedown="handleDrag($event, true)">
       <div id="canvas" :style="pageStyle" @contextmenu.prevent="handleResize($event, true, form.pageResize)">
         <component
@@ -176,6 +177,50 @@ export default {
       },
       items: [],
       imgSrc: ''
+    }
+  },
+
+  created() {
+    let vKeyDown = false
+    let hKeyDown = false
+    let alignList = []
+
+    document.onkeydown = () => {
+      if (vKeyDown | hKeyDown) return null
+      vKeyDown = window.event.keyCode === 86
+      hKeyDown = window.event.keyCode === 72
+      if (!(vKeyDown ^ hKeyDown)) return null
+
+      document.onmousedown = () => {
+        const id = window.event.target.id
+        if (id.indexOf('component') < 0 | alignList.indexOf(id) >= 0) return null
+        alignList.push(id)
+      }
+
+      document.onkeyup = () => {
+        if (alignList.length > 1) handleAlign(alignList, vKeyDown)
+        vKeyDown = false
+        hKeyDown = false
+        alignList = []
+        document.onmousedown = null
+        document.onkeyup = null
+      }
+    }
+
+    function handleAlign(l, isVertical) {
+      let offset
+      if (isVertical) {
+        offset = getComputedStyle(document.getElementById(l[0]), null)['left']
+      } else {
+        offset = getComputedStyle(document.getElementById(l[0]), null)['top']
+      }
+      for (let i = 1; i < l.length; i++) {
+        if (isVertical) {
+          document.getElementById(l[i]).style.left = offset
+        } else {
+          document.getElementById(l[i]).style.top = offset
+        }
+      }
     }
   },
 
@@ -396,6 +441,7 @@ function checkResize(length, targetLoc, parentObj, paddingSize, whichSide) {
 
 .menu-interface {
   float: left;
+  width: 30%;
 }
 
 .graphic-interface{
@@ -403,7 +449,7 @@ function checkResize(length, targetLoc, parentObj, paddingSize, whichSide) {
   float: left;
   position: relative;
   margin: 2%;
-  margin-left: 0;
+  margin-left: 3%;
 }
 
 .text-container {
