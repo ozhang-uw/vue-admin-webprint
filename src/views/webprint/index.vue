@@ -11,7 +11,7 @@
         <el-form-item label="页面">
           <el-row>
             <el-col :span="10">
-              <el-input v-model="form.pageSize" placeholder="大小" clearable />
+              <el-input v-model="form.pageSize" placeholder="大小(宽 高)" clearable />
             </el-col>
             <el-col :span="10">
               <el-input v-model="form.pagePadding" placeholder="边距" clearable />
@@ -30,19 +30,20 @@
         </el-form-item>
         <el-form-item label="创建文字框">
           <el-row>
-            <el-col :span="10">
-              <el-input v-model="form.textHeight" placeholder="高度" clearable />
+            <el-col :span="8">
+              <el-input v-model="form.textSize" placeholder="字体大小" clearable />
             </el-col>
-            <el-col :span="10">
-              <el-input v-model="form.textWidth" placeholder="宽度" clearable />
+            <el-col :span="12">
+              <el-input v-model="form.textID" placeholder="ID 空格隔开多个ID" clearable />
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="10">
-              <el-input v-model="form.textSize" placeholder="字体大小" clearable />
-            </el-col>
-            <el-col :span="10">
-              <el-input v-model="form.textID" placeholder="ID" clearable />
+            <el-col :span="20">
+              <el-checkbox-group v-model="form.textStyle">
+                <el-checkbox label="加粗" />
+                <el-checkbox label="斜体" />
+                <el-checkbox label="下划线" />
+              </el-checkbox-group>
             </el-col>
             <el-col :span="4">
               <el-button type="primary" @click="onCreateText('textChild')">确认</el-button>
@@ -60,7 +61,7 @@
           </el-row>
           <el-row>
             <el-col :span="20">
-              <span>横 </span><el-switch v-model="form.lineIsVertical" /><span> 竖</span>
+              <el-switch v-model="form.lineIsVertical" active-text="竖" inactive-text="横" />
             </el-col>
             <el-col :span="4">
               <el-button type="primary" @click="onCreateLine('lineChild')">确认</el-button>
@@ -105,11 +106,11 @@
         </el-form-item>
         <el-form-item label="元素等距">
           <el-row>
-            <el-col :span="10">
+            <el-col :span="8">
               <el-input v-model="form.spacingDistance" type="primary" placeholder="间距" clearable />
             </el-col>
-            <el-col :span="10">
-              <span>&emsp;水平 </span><el-switch v-model="form.spacingIsVertical" /><span> 垂直</span>
+            <el-col :span="12">
+              <span>&emsp;</span><el-switch v-model="form.spacingIsVertical" active-text="垂直" inactive-text="水平" />
             </el-col>
           </el-row>
           <el-row>
@@ -127,8 +128,11 @@
             <span>v为垂直对齐，h为水平对齐</span>
           </el-col>
         </el-form-item>
-        <el-form-item label="删除上一个">
-          <el-button type="primary" @click="onDeleteLast()">确认</el-button>
+        <el-form-item label="删除">
+          <el-button-group>
+            <el-button type="primary" @click="onDeleteLast()">删除上一个</el-button>
+            <el-button type="primary" @click="onDeleteSel()">删除选中</el-button>
+          </el-button-group>
         </el-form-item>
         <el-form-item label="导出">
           <el-button type="primary" @click="onExport()">确认</el-button>
@@ -150,6 +154,7 @@
           :style="item.styleObject"
           @mousedown.native="handleDrag($event, false)"
           @contextmenu.prevent.native.stop="handleResize($event, false, true)"
+          @dblclick.native="handleApplyStyle($event)"
         />
       </div>
     </div>
@@ -194,11 +199,10 @@ export default {
         pageSize: '',
         pagePadding: '',
         pageResize: false,
-        textHeight: '',
-        textWidth: '',
         textSize: '',
         textID: '',
-        lineLength: '10mm',
+        textStyle: [],
+        lineLength: '100',
         lineBorder: '4px solid red',
         lineIsVertical: false,
         inputImg: '',
@@ -306,19 +310,33 @@ export default {
             return false
           }
         }
-
         this.alertStyle.display = 'none'
+
+        const styleObject = {
+          width: '50px',
+          height: '50px',
+          'font-size': parseInt(this.form.textSize) + 'pt',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'text-decoration': 'none'
+        }
+        if (this.form.textStyle.indexOf('加粗') >= 0) {
+          styleObject['font-weight'] = 'bold'
+        }
+        if (this.form.textStyle.indexOf('斜体') >= 0) {
+          styleObject['font-style'] = 'italic'
+        }
+        if (this.form.textStyle.indexOf('下划线') >= 0) {
+          styleObject['text-decoration'] = 'underline'
+        }
+
         scriptContent.push(id + ':\'\'')
         this.items.push({
           component: name,
           index: textCounter,
           dataID: id,
           isSelected: false,
-          styleObject: {
-            width: parseInt(this.form.textWidth) + 'px',
-            height: parseInt(this.form.textHeight) + 'px',
-            'font-size': parseInt(this.form.textSize) + 'pt'
-          }
+          styleObject
         })
         textCounter++
       }
@@ -543,6 +561,29 @@ export default {
         this.$refs.gridClick.handleClick()
         document.onmousemove = null
         document.onmouseup = null
+      }
+    },
+
+    handleApplyStyle(e) {
+      const item = this.items[parseInt(e.target.id.substring(9))]
+      if (item.component !== 'textChild') return null
+      if (this.form.textStyle.indexOf('加粗') >= 0) {
+        item.styleObject['font-weight'] = 'bold'
+      } else {
+        item.styleObject['font-weight'] = 'normal'
+      }
+      if (this.form.textStyle.indexOf('斜体') >= 0) {
+        item.styleObject['font-style'] = 'italic'
+      } else {
+        item.styleObject['font-style'] = 'normal'
+      }
+      if (this.form.textStyle.indexOf('下划线') >= 0) {
+        item.styleObject['text-decoration'] = 'underline'
+      } else {
+        item.styleObject['text-decoration'] = 'none'
+      }
+      if (this.form.textSize) {
+        item.styleObject['font-size'] = this.form.textSize + 'pt'
       }
     }
   }

@@ -28,8 +28,6 @@ export default {
 <style scoped>
   .text-container{
     position: absolute;
-    width: 10mm;
-    height: 10mm;
     border: 1pt solid black;
     box-sizing: border-box;
   }
