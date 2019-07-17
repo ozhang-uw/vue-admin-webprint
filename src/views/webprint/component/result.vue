@@ -27,7 +27,7 @@ export default {
     return {
       content: decodeURI(this.$route.params.content),
       defaultStyle: '<style type=\"text/css\">.text-container{position: absolute;' +
-                    'width: 10mm;height: 10mm;border: 1pt solid red;box-sizing: border-box;}</style>' +
+                    'width: 10mm;height: 10mm;border: 1pt solid black;box-sizing: border-box;}</style>' +
                     '<style type=\"text/css\">.line-container{position: absolute;' +
                     'box-sizing: border-box;}body{margin:0;padding:0;}@media print{@page{margin:0;}}</style>',
       vueScript: '<script>var app = new Vue({' +

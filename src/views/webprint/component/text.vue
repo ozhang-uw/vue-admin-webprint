@@ -30,7 +30,12 @@ export default {
     position: absolute;
     width: 10mm;
     height: 10mm;
-    border: 1pt solid red;
+    border: 1pt solid black;
     box-sizing: border-box;
+  }
+
+  span {
+    position: relative;
+    z-index: -1;
   }
 </style>
