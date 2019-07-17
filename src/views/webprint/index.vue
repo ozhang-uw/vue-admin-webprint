@@ -254,7 +254,7 @@ export default {
       } else {
         offset = getComputedStyle(document.getElementById(l[0]), null)['top']
       }
-      for (let i = 1; i < l.length; i++) {d
+      for (let i = 1; i < l.length; i++) {
         if (isVertical) {
           document.getElementById(l[i]).style.left = offset
         } else {
