@@ -11,10 +11,13 @@
         <el-form-item label="页面">
           <el-row>
             <el-col :span="10">
-              <el-input v-model="form.pageSize" placeholder="大小(宽 高)" clearable />
+              <el-input v-model="form.pageSize" placeholder="大小(宽 高)" clearable @keyup.native="testInput($event, false, true)" />
             </el-col>
             <el-col :span="10">
-              <el-input v-model="form.pagePadding" placeholder="边距" clearable />
+              <el-input v-model="form.pagePadding" placeholder="边距" clearable @keyup.native="testInput($event, false, false)" />
+            </el-col>
+            <el-col :span="4">
+              <el-button type="primary" @click="onPage">确认</el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -22,49 +25,46 @@
               <el-col :span="20">
                 <span>页面缩放 </span><el-switch v-model="form.pageResize" />
               </el-col>
-              <el-col :span="4">
-                <el-button type="primary" @click="onPage">确认</el-button>
-              </el-col>
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="创建文字框">
-          <el-row>
-            <el-col :span="8">
-              <el-input v-model="form.textSize" placeholder="字体大小" clearable />
-            </el-col>
-            <el-col :span="12">
-              <el-input v-model="form.textID" placeholder="ID 空格隔开多个ID" clearable />
-            </el-col>
-          </el-row>
+        <el-form-item label="文字框">
           <el-row>
             <el-col :span="20">
-              <el-checkbox-group v-model="form.textStyle">
-                <el-checkbox label="加粗" />
-                <el-checkbox label="斜体" />
-                <el-checkbox label="下划线" />
-              </el-checkbox-group>
+              <el-input v-model="form.textID" placeholder="ID 使用空格隔开创建多个文字框" clearable />
             </el-col>
             <el-col :span="4">
               <el-button type="primary" @click="onCreateText('textChild')">确认</el-button>
             </el-col>
           </el-row>
-        </el-form-item>
-        <el-form-item label="创建线条">
-          <el-row>
-            <el-col :span="8">
-              <el-input v-model="form.lineLength" placeholder="长度" clearable />
-            </el-col>
-            <el-col :span="12">
-              <el-input v-model="form.lineBorder" placeholder="边框" clearable />
-            </el-col>
-          </el-row>
           <el-row>
             <el-col :span="20">
-              <el-switch v-model="form.lineIsVertical" active-text="竖" inactive-text="横" />
+              <el-input v-model="form.textSize" placeholder="字体大小" clearable @input="handleApplyStyle()" @keyup.native="testInput($event, false, false)" />
+            </el-col>
+            <el-col :span="24">
+              <el-checkbox-group v-model="form.textStyle" @change="handleApplyStyle()">
+                <el-checkbox label="加粗" />
+                <el-checkbox label="斜体" />
+                <el-checkbox label="下划线" />
+              </el-checkbox-group>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <el-form-item label="线条">
+          <el-row>
+            <el-col :span="20">
+              <el-input v-model="form.lineBorderWidth" placeholder="宽度" clearable @input="handleApplyStyle()" @keyup.native="testInput($event, false, false)" />
             </el-col>
             <el-col :span="4">
               <el-button type="primary" @click="onCreateLine('lineChild')">确认</el-button>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="10">
+              <el-switch v-model="form.lineIsVertical" active-text="竖" inactive-text="横" />
+            </el-col>
+            <el-col :span="10">
+              <el-switch v-model="form.lineIsDotted" active-text="虚线" inactive-text="实线" @change="handleApplyStyle()" />
             </el-col>
           </el-row>
         </el-form-item>
@@ -74,7 +74,10 @@
               <el-input v-model="form.inputImg" type="file" />
             </el-col>
             <el-col :span="6">
-              <el-input v-model="form.imgOpacity" type="primary" placeholder="清晰度" />
+              <el-input v-model="form.imgOpacity" type="primary" placeholder="清晰度" @keyup.native="testInput($event, true, false)" />
+            </el-col>
+            <el-col :span="4">
+              <el-button type="primary" @click="onUpLoadImg()">载入</el-button>
             </el-col>
           </el-row>
           <el-row>
@@ -86,16 +89,17 @@
             </el-col>
           </el-row>
           <el-row>
-            <el-button-group>
-              <el-button type="primary" :disabled="form.imgButton" @click="onImgSize()">页面大小一致</el-button>
-              <el-button type="primary" :disabled="form.imgButton" @click="onImgOrig()">返回初始位置</el-button>
-              <el-button type="primary" @click="onUpLoadImg()">载入</el-button>
-            </el-button-group>
+            <el-col :sm="24">
+              <el-button-group>
+                <el-button type="primary" :disabled="form.imgButton" @click="onImgSize()">页面图片大小一致</el-button>
+                <el-button type="primary" :disabled="form.imgButton" @click="onImgOrig()">返回初始位置</el-button>
+              </el-button-group>
+            </el-col>
           </el-row>
         </el-form-item>
         <el-form-item label="网格">
           <el-col :span="10">
-            <el-input v-model="form.gridSpacing" type="primary" placeholder="网格间距" clearable />
+            <el-input v-model="form.gridSpacing" type="primary" placeholder="网格间距" clearable @keyup.native="testInput($event, false, true)" />
           </el-col>
           <el-col :span="10">
             <span>&emsp;隐藏 </span><el-switch v-model="form.gridHide" @change="onGridHide()" />
@@ -104,29 +108,26 @@
             <el-button ref="gridClick" type="primary" @click="onGridGenerate()">确认</el-button>
           </el-col>
         </el-form-item>
+        <el-form-item label="元素对齐">
+          <el-col :span="20">
+            <el-switch v-model="form.alignIsVertical" active-text="垂直" inactive-text="水平" />
+          </el-col>
+          <el-col :span="4">
+            <el-button type="primary" @click="handleAlign()">确认</el-button>
+          </el-col>
+        </el-form-item>
         <el-form-item label="元素等距">
           <el-row>
             <el-col :span="8">
-              <el-input v-model="form.spacingDistance" type="primary" placeholder="间距" clearable />
+              <el-input v-model="form.spacingDistance" type="primary" placeholder="间距" clearable @keyup.native="testInput($event, false, false)" />
             </el-col>
             <el-col :span="12">
               <span>&emsp;</span><el-switch v-model="form.spacingIsVertical" active-text="垂直" inactive-text="水平" />
             </el-col>
+            <el-col :span="4">
+              <el-button type="primary" @click="onSpacing()">确认</el-button>
+            </el-col>
           </el-row>
-          <el-row>
-            <el-button-group>
-              <el-button :type="form.selectType" @click="onEleSelect()">{{ form.selectMsg }}</el-button>
-              <el-button type="primary" :disabled="form.selNotClearable" @click="onSelClear()">清空</el-button>
-              <el-button type="primary" :disabled="form.selAppDisable" @click="onSpacing()">确认</el-button>
-            </el-button-group>
-          </el-row>
-        </el-form-item>
-        <el-form-item label="元素对齐">
-          <el-col :span="20">
-            <span>按下键盘v或h键并左键点击需要对齐的元素，</span>
-            <span>松开后以点击的第一个元素为基准对齐。</span>
-            <span>v为垂直对齐，h为水平对齐</span>
-          </el-col>
         </el-form-item>
         <el-form-item label="删除">
           <el-button-group>
@@ -154,7 +155,6 @@
           :style="item.styleObject"
           @mousedown.native="handleDrag($event, false)"
           @contextmenu.prevent.native.stop="handleResize($event, false, true)"
-          @dblclick.native="handleApplyStyle($event)"
         />
       </div>
     </div>
@@ -164,6 +164,20 @@
 <script>
 import textChild from './component/text.vue'
 import lineChild from './component/line.vue'
+
+const PAGE_WIDTH = '400px'
+const PAGE_HEIGHT = '300px'
+const TEXT_WIDTH = '50px'
+const TEXT_HEIGHT = '50px'
+const MIN_SIZE = '10px'
+const FONT_SIZE = '12pt'
+const LINE_WIDTH = '3px'
+const LINE_LENGTH = '100px'
+const IMG_OPACITY = 0.5
+const GRID_SPACING = 20
+const GRID_LINE_WIDTH = 0.3
+const GRID_CENTER_OFFSET = -0.5 // remove line aliasing, can be 0.5
+const SELECT_KEY = 65 // press A to select
 
 // eslint-disable-next-line
 let scriptContent = []
@@ -181,14 +195,14 @@ export default {
   data() {
     return {
       pageStyle: {
-        height: '300px',
-        width: '400px',
+        height: PAGE_HEIGHT,
+        width: PAGE_WIDTH,
         padding: '0px',
         'box-sizing': 'border-box'
       },
       imgStyle: {
         position: 'absolute',
-        opacity: 0.5,
+        opacity: IMG_OPACITY,
         display: 'inline',
         'z-index': 1
       },
@@ -202,20 +216,17 @@ export default {
         textSize: '',
         textID: '',
         textStyle: [],
-        lineLength: '100',
-        lineBorder: '4px solid red',
+        lineBorderWidth: '',
         lineIsVertical: false,
+        lineIsDotted: false,
         inputImg: '',
         imgHide: false,
         imgOpacity: '',
         imgBack: false,
         imgButton: true,
+        alignIsVertical: false,
         spacingIsVertical: false,
         spacingDistance: '',
-        selAppDisable: true,
-        selNotClearable: false,
-        selectMsg: '选择',
-        selectType: 'primary',
         gridSpacing: '',
         gridHide: false
       },
@@ -225,62 +236,45 @@ export default {
   },
 
   created() {
-    let vKeyDown = false
-    let hKeyDown = false
-    let alignList = []
+    document.onkeydown = (e) => {
+      if (selectable) return null
+      if (e.keyCode !== SELECT_KEY) return null // if not A
+      selectable = true
 
-    // handle Align
-    document.onkeydown = () => {
-      if (vKeyDown | hKeyDown) return null
-      vKeyDown = window.event.keyCode === 86
-      hKeyDown = window.event.keyCode === 72
-      if (!(vKeyDown ^ hKeyDown)) return null
-      document.onmousedown = () => {
-        const id = window.event.target.id
-        if (id.indexOf('component') < 0 | alignList.indexOf(id) >= 0) return null
-        alignList.push(id)
+      document.onclick = (e) => {
+        const target = e.target
+        if (target.id.indexOf('component') < 0) return null
+        const index = selectedEle.indexOf(target)
+        if (index >= 0) {
+          selectedEle.splice(index, 1)
+          this.items[target.id.substring(9)].isSelected = false
+        } else {
+          selectedEle.push(target)
+          this.items[target.id.substring(9)].isSelected = true
+        }
+      }
+
+      document.onmousedown = (e) => {
+        if (e.button !== 2) return null
+        for (const element of selectedEle) {
+          this.items[parseInt(element.id.substring(9))].isSelected = false
+        }
+        selectedEle = []
       }
 
       document.onkeyup = () => {
-        if (alignList.length > 1) handleAlign(alignList, vKeyDown)
-        vKeyDown = false
-        hKeyDown = false
-        alignList = []
+        selectable = false
         document.onmousedown = null
+        document.onclick = null
         document.onkeyup = null
       }
-    }
-
-    function handleAlign(l, isVertical) {
-      let offset
-      if (isVertical) {
-        offset = getComputedStyle(document.getElementById(l[0]), null)['left']
-      } else {
-        offset = getComputedStyle(document.getElementById(l[0]), null)['top']
-      }
-      for (let i = 1; i < l.length; i++) {
-        if (isVertical) {
-          document.getElementById(l[i]).style.left = offset
-        } else {
-          document.getElementById(l[i]).style.top = offset
-        }
-      }
-    }
-
-    // handle spacing
-    document.onclick = () => {
-      if (!selectable) return null
-      const target = window.event.target
-      if (target.id.indexOf('component') < 0 | selectedEle.indexOf(target.id) >= 0) return null
-      selectedEle.push(target)
-      this.items[parseInt(target.id.substring(9))].isSelected = true
     }
   },
 
   methods: {
     onPage() {
       if (this.form.pageSize) {
-        const dimension = this.form.pageSize.trim().split(' ')
+        const dimension = this.form.pageSize.trim().split(/[ ]+/)
         this.pageStyle.width = parseInt(dimension[0]) + 'px'
         this.pageStyle.height = parseInt(dimension[1]) + 'px'
       }
@@ -313,9 +307,9 @@ export default {
         this.alertStyle.display = 'none'
 
         const styleObject = {
-          width: '50px',
-          height: '50px',
-          'font-size': parseInt(this.form.textSize) + 'pt',
+          width: TEXT_WIDTH,
+          height: TEXT_HEIGHT,
+          'font-size': this.form.textSize ? this.form.textSize + 'pt' : FONT_SIZE,
           'font-style': 'normal',
           'font-weight': 'normal',
           'text-decoration': 'none'
@@ -343,20 +337,24 @@ export default {
     },
 
     onCreateLine(name) {
-      const height = parseInt(this.form.lineLength) + 'px'
-      // eslint-disable-next-line
-      let styleObject = {}
+      const length = LINE_LENGTH
+      let border = this.form.lineBorderWidth ? this.form.lineBorderWidth + 'px ' : LINE_WIDTH + ' '
+      border += this.form.lineIsDotted ? 'dashed ' : 'solid '
+      border += 'black'
+      const styleObject = {}
       if (this.form.lineIsVertical) {
-        styleObject['height'] = height
-        styleObject['border-left'] = this.form.lineBorder
+        styleObject['height'] = length
+        styleObject['border-left'] = border
       } else {
-        styleObject['width'] = height
-        styleObject['border-top'] = this.form.lineBorder
+        styleObject['width'] = length
+        styleObject['border-top'] = border
       }
       this.items.push({
         component: name,
         index: textCounter,
-        styleObject
+        styleObject,
+        isSelected: false,
+        lineIsVertical: this.form.lineIsVertical
       })
       textCounter++
     },
@@ -405,39 +403,40 @@ export default {
       cxt.canvas.height = cxt.canvas.height
       cxt.strokeStyle = 'black'
 
-      if (!this.form.gridSpacing) return null
-
-      const step = this.form.gridSpacing.split(/[ ]+/)
-      step[0] = parseInt(step[0])
-      step[1] = parseInt(step[1])
+      let step = []
+      if (!this.form.gridSpacing) {
+        step[0] = GRID_SPACING
+        step[1] = GRID_SPACING
+      } else {
+        step = this.form.gridSpacing.split(/[ ]+/)
+        step[0] = parseInt(step[0])
+        step[1] = parseInt(step[1])
+      }
       if (step[0] === 0 | step[1] === 0) return null
 
       for (let i = 0; i < 3; i++) {
-        gridGenerate(cxt, step[0] * Math.pow(2, i), step[1] * Math.pow(2, i), 0.5)
+        gridGenerate(cxt, step[0] * Math.pow(2, i), step[1] * Math.pow(2, i), GRID_LINE_WIDTH)
       }
     },
 
-    onEleSelect() {
-      if (!selectable) {
-        this.form.selectType = 'warning'
-        this.form.selectMsg = '取消'
-        selectable = true
+    handleAlign() {
+      if (selectedEle.length < 2) {
+        alert('请选择至少2个元素')
+        return null
+      }
+      let offset
+      if (this.form.alignIsVertical) {
+        offset = getComputedStyle(selectedEle[selectedEle.length - 1], null)['left']
       } else {
-        this.form.selectType = 'primary'
-        this.form.selectMsg = '选择'
-        selectable = false
-        if (selectedEle.length !== 0) this.form.selAppDisable = false
+        offset = getComputedStyle(selectedEle[selectedEle.length - 1], null)['top']
       }
-      this.form.selNotClearable = selectable
-    },
-
-    onSelClear() {
-      let element
-      for (element of selectedEle) {
-        this.items[parseInt(element.id.substring(9))].isSelected = false
+      for (let i = 0; i < selectedEle.length - 1; i++) {
+        if (this.form.alignIsVertical) {
+          selectedEle[i].style.left = offset
+        } else {
+          selectedEle[i].style.top = offset
+        }
       }
-      selectedEle = []
-      this.form.selAppDisable = true
     },
 
     onSpacing() {
@@ -537,8 +536,8 @@ export default {
       document.onmousemove = (e) => {
         let n_h = e.clientY - y + h
         let n_w = e.clientX - x + w
-        n_h = n_h < 5 ? 5 : n_h
-        n_w = n_w < 5 ? 5 : n_w
+        n_h = n_h < MIN_SIZE ? MIN_SIZE : n_h
+        n_w = n_w < MIN_SIZE ? MIN_SIZE : n_w
 
         if (disableCheck) {
           targetObj.style.height = n_h + 'px'
@@ -553,8 +552,13 @@ export default {
         } else {
           const targetTop = parseInt(getComputedStyle(targetObj, null)['top'])
           const targetLeft = parseInt(getComputedStyle(targetObj, null)['left'])
-          targetObj.style.height = checkResize(n_h, targetTop, parentObj, paddingSize, 1) + 'px'
-          targetObj.style.width = checkResize(n_w, targetLeft, parentObj, paddingSize, 0) + 'px'
+          const item = this.items[targetObj.id.substring(9)]
+          if (item.component !== 'lineChild' | !item.lineIsVertical) {
+            targetObj.style.width = checkResize(n_w, targetLeft, parentObj, paddingSize, 0) + 'px'
+          }
+          if (item.component !== 'lineChild' | item.lineIsVertical) {
+            targetObj.style.height = checkResize(n_h, targetTop, parentObj, paddingSize, 1) + 'px'
+          }
         }
       }
       document.onmouseup = (e) => {
@@ -564,26 +568,64 @@ export default {
       }
     },
 
-    handleApplyStyle(e) {
-      const item = this.items[parseInt(e.target.id.substring(9))]
-      if (item.component !== 'textChild') return null
-      if (this.form.textStyle.indexOf('加粗') >= 0) {
-        item.styleObject['font-weight'] = 'bold'
-      } else {
-        item.styleObject['font-weight'] = 'normal'
+    handleApplyStyle() {
+      const textSize = parseInt(this.form.textSize)
+      for (let i = 0; i < selectedEle.length; i++) {
+        const item = this.items[parseInt(selectedEle[i].id.substring(9))]
+        if (item.component === 'textChild') {
+          // TODO simplify
+          if (this.form.textStyle.indexOf('加粗') >= 0) {
+            item.styleObject['font-weight'] = 'bold'
+          } else {
+            item.styleObject['font-weight'] = 'normal'
+          }
+          if (this.form.textStyle.indexOf('斜体') >= 0) {
+            item.styleObject['font-style'] = 'italic'
+          } else {
+            item.styleObject['font-style'] = 'normal'
+          }
+          if (this.form.textStyle.indexOf('下划线') >= 0) {
+            item.styleObject['text-decoration'] = 'underline'
+          } else {
+            item.styleObject['text-decoration'] = 'none'
+          }
+          if (textSize) {
+            item.styleObject['font-size'] = textSize + 'pt'
+          } else {
+            item.styleObject['font-size'] = FONT_SIZE
+          }
+        } else {
+          const dir = item.styleObject['border-left'] ? 'border-left' : 'border-top'
+          let borderStyle = item.styleObject[dir].split(' ')
+          borderStyle[0] = this.form.lineBorderWidth ? this.form.lineBorderWidth + 'px' : LINE_WIDTH
+          borderStyle[1] = this.form.lineIsDotted ? 'dashed' : 'solid'
+          borderStyle = borderStyle.join(' ')
+          item.styleObject[dir] = borderStyle
+        }
       }
-      if (this.form.textStyle.indexOf('斜体') >= 0) {
-        item.styleObject['font-style'] = 'italic'
-      } else {
-        item.styleObject['font-style'] = 'normal'
+    },
+
+    // TODO
+    testInput(e, isDouble, allowMultiple) {
+      const value = e.target.value
+      const hasNonNumber = /[^0-9 .]/g
+      if (hasNonNumber.test(value)) {
+        e.target.value = value.substring(0, value.length - 1)
+        return null
       }
-      if (this.form.textStyle.indexOf('下划线') >= 0) {
-        item.styleObject['text-decoration'] = 'underline'
-      } else {
-        item.styleObject['text-decoration'] = 'none'
+      if (!isDouble) {
+        const hasDot = /[.]/g
+        if (hasDot.test(value)) {
+          e.target.value = value.substring(0, value.length - 1)
+          return null
+        }
       }
-      if (this.form.textSize) {
-        item.styleObject['font-size'] = this.form.textSize + 'pt'
+      if (!allowMultiple) {
+        const hasSpace = /[ ]/g
+        if (hasSpace.test(value)) {
+          e.target.value = value.substring(0, value.length - 1)
+          return null
+        }
       }
     }
   }
@@ -627,15 +669,15 @@ function gridGenerate(cxt, stepx, stepy, lineWidth) {
   cxt.lineWidth = lineWidth
   for (let i = 0; i <= cxt.canvas.height; i += stepy) {
     cxt.beginPath()
-    cxt.moveTo(0, i)
-    cxt.lineTo(cxt.canvas.width - 1, i)
+    cxt.moveTo(GRID_CENTER_OFFSET, i + GRID_CENTER_OFFSET)
+    cxt.lineTo(cxt.canvas.width - 1 + GRID_CENTER_OFFSET, i + GRID_CENTER_OFFSET)
     cxt.stroke()
   }
 
   for (let i = 0; i <= cxt.canvas.width; i += stepx) {
     cxt.beginPath()
-    cxt.moveTo(i, 0)
-    cxt.lineTo(i, cxt.canvas.height - 1)
+    cxt.moveTo(i + GRID_CENTER_OFFSET, GRID_CENTER_OFFSET)
+    cxt.lineTo(i + GRID_CENTER_OFFSET, cxt.canvas.height - 1 + GRID_CENTER_OFFSET)
     cxt.stroke()
   }
 }
@@ -657,7 +699,7 @@ function gridGenerate(cxt, stepx, stepy, lineWidth) {
 }
 
 .selected{
-  border-color: red;
+  border-color: red !important;
 }
 
 #drawingBoard{
