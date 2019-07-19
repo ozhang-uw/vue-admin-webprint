@@ -220,6 +220,7 @@ import lineChild from './component/line.vue'
 // 默认设置
 const PAGE_WIDTH = '400px'
 const PAGE_HEIGHT = '300px'
+const PAGE_PADDING = '10px'
 const TEXT_WIDTH = '50px'
 const TEXT_HEIGHT = '50px'
 const MIN_SIZE = '10px'
@@ -248,7 +249,7 @@ export default {
       pageStyle: {
         height: PAGE_HEIGHT,
         width: PAGE_WIDTH,
-        padding: '0px',
+        padding: PAGE_PADDING,
         'box-sizing': 'border-box'
       },
       imgStyle: {
