@@ -65,7 +65,8 @@
               <el-switch v-model="form.imgHide" active-text="隐藏" inactive-text="显示" @change="onImgHide" />
             </el-col>
             <el-col :span="12">
-              <span>&emsp;</span><el-switch v-model="form.imgBack" active-text="背景" inactive-text="前景" @change="onImgBack" />
+              <span>&emsp;</span>
+              <el-switch v-model="form.imgBack" active-text="背景" inactive-text="前景" @change="onImgBack" />
             </el-col>
           </el-row>
           <el-row>
@@ -156,7 +157,8 @@
               />
             </el-col>
             <el-col :span="12">
-              <span>&emsp;</span><el-switch v-model="form.spacingIsVertical" active-text="垂直" inactive-text="水平" />
+              <span>&emsp;</span>
+              <el-switch v-model="form.spacingIsVertical" active-text="垂直" inactive-text="水平" />
             </el-col>
             <el-col :span="4">
               <el-button type="primary" @click="onSpacing()">确认</el-button>
@@ -175,7 +177,8 @@
             />
           </el-col>
           <el-col :span="12">
-            <span>&emsp;</span><el-switch v-model="form.gridHide" active-text="隐藏" inactive-text="显示" @change="onGridHide()" />
+            <span>&emsp;</span>
+            <el-switch v-model="form.gridHide" active-text="隐藏" inactive-text="显示" @change="onGridHide()" />
           </el-col>
           <el-col :span="4">
             <el-button ref="gridClick" type="primary" @click="onGridGenerate()">确认</el-button>
