@@ -54,7 +54,7 @@
               <el-input
                 v-model="form.imgOpacity"
                 type="primary"
-                placeholder="清晰度"
+                placeholder="透明度"
                 @keyup.native="testInput($event, true, false)"
                 @keyup.enter.native="onUpLoadImg()"
               />
