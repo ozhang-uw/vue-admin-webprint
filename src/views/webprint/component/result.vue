@@ -46,18 +46,22 @@ export default {
     onDownload() {
       if (!this.pageSize.width) return false
 
+      // 提出网页的内容
       const styleStr = document.getElementById('contentStyle').innerHTML
       const contentStr = document.getElementById('preview').innerHTML
       const scriptStr = document.getElementById('scriptContent').innerHTML
 
+      // 将px单位转换成mm单位
       const regexFilter = /[0-9]+(px;)/g
       let replaced = ''
       let start = 0
       let match, lastIndex, firstIndex, ratio
+      // 找到所有px单位的数字
       while ((match = regexFilter.exec(contentStr)) != null) {
         lastIndex = regexFilter.lastIndex
         firstIndex = lastIndex - match[0].length
         replaced += contentStr.substring(start, firstIndex)
+        // 通过用户设置的纸张大小来计算对比率 并计算出换算过的值 保留一位小数
         if (start === 0) {
           ratio = parseFloat(this.pageSize.width) / parseFloat(getComputedStyle(document.getElementById('canvas'), null)['width'])
         }

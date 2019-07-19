@@ -6,6 +6,7 @@
 
 <script>
 export default {
+  // 通过props与父组件通讯
   props: {
     childData: {
       type: String,
