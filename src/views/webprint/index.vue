@@ -336,6 +336,10 @@ export default {
     // 改变画布大小和边距 需要vue
     onPage() {
       if (this.form.pageSize) {
+        if (!testInputAfter(this.form.pageSize, false, true)) {
+          alert('页面大小必须为两个用空格隔开的整数')
+          return null
+        }
         const dimension = this.form.pageSize.trim().split(/[ ]+/)
         this.pageStyle.width = parseInt(dimension[0]) + 'px'
         this.pageStyle.height = parseInt(dimension[1]) + 'px'
@@ -433,6 +437,10 @@ export default {
     // 加载图片 所有图片都在src/assests/print_images/当中
     onUpLoadImg() {
       if (!this.form.inputImg) return false
+      if (this.form.imgOpacity & !testInputAfter(this.form.imgOpacity, true, false)) {
+        alert('清晰度必须为一个小数')
+        return null
+      }
       const name = this.form.inputImg.split('\\')[2]
       this.imgSrc = require('@/assets/print_images/' + name)
       this.imgStyle.opacity = parseFloat(this.form.imgOpacity)
@@ -552,7 +560,7 @@ export default {
         for (let i = 0; i < selectedEle.length - 1; i++) {
           offset -= parseInt(getComputedStyle(selectedEle[i], null)[divMeasure])
         }
-        offset /= (selectedEle.length - 1)
+        offset = Math.round(offset / (selectedEle.length - 1))
       }
 
       // 对剩余所有的元素设置位置 保证间距统一
@@ -747,7 +755,7 @@ export default {
       }
     },
 
-    // 检测用户输入是否正确
+    // 检测用户‘正在输入时’输入是否正确
     // 如果不正确 则删除最后以为字符
     testInput(e, isDouble, allowMultiple) {
       const value = e.target.value
@@ -846,6 +854,22 @@ function gridGenerate(cxt, stepx, stepy, lineWidth) {
     cxt.lineTo(i + GRID_CENTER_OFFSET, cxt.canvas.height - 1 + GRID_CENTER_OFFSET)
     cxt.stroke()
   }
+}
+
+function testInputAfter(userInput, isDouble, isMultiple) {
+  const input = userInput.trim()
+  if (isDouble) {
+    const rule5 = /(\. |\.$)/g
+    if (rule5.test(input)) {
+      return false
+    }
+  }
+  if (isMultiple) {
+    if (input.indexOf(' ') <= 0) {
+      return false
+    }
+  }
+  return true
 }
 </script>
 
