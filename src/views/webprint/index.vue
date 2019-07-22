@@ -15,7 +15,7 @@
                 v-model="form.pageSize"
                 placeholder="大小(宽 高)"
                 clearable
-                @keyup.native="testInput($event, false, true)"
+                @input.native="testInput($event, false, true)"
                 @keyup.enter.native="onPage()"
               />
             </el-col>
@@ -24,7 +24,7 @@
                 v-model="form.pagePadding"
                 placeholder="边距"
                 clearable
-                @keyup.native="testInput($event, false, false)"
+                @input.native="testInput($event, false, false)"
                 @keyup.enter.native="onPage()"
               />
             </el-col>
@@ -55,7 +55,7 @@
                 v-model="form.imgOpacity"
                 type="primary"
                 placeholder="透明度"
-                @keyup.native="testInput($event, true, false)"
+                @input.native="testInput($event, true, false)"
                 @keyup.enter.native="onUpLoadImg()"
               />
             </el-col>
@@ -99,7 +99,7 @@
                 placeholder="字体大小"
                 clearable
                 @input="handleApplyStyle()"
-                @keyup.native="testInput($event, false, false)"
+                @input.native="testInput($event, false, false)"
               />
             </el-col>
             <el-col :span="24">
@@ -119,7 +119,7 @@
                 placeholder="宽度"
                 clearable
                 @input="handleApplyStyle()"
-                @keyup.native="testInput($event, false, false)"
+                @input.native="testInput($event, false, false)"
                 @keyup.enter.native="onCreateLine('lineChild')"
               />
             </el-col>
@@ -152,7 +152,7 @@
                 type="primary"
                 placeholder="间距"
                 clearable
-                @keyup.native="testInput($event, false, false)"
+                @input.native="testInput($event, false, false)"
                 @keyup.enter.native="onSpacing()"
               />
             </el-col>
@@ -172,7 +172,7 @@
               type="primary"
               placeholder="宽 高"
               clearable
-              @keyup.native="testInput($event, false, true)"
+              @input.native="testInput($event, false, true)"
               @keyup.enter.native="onGridGenerate()"
             />
           </el-col>
@@ -338,13 +338,17 @@ export default {
       if (this.form.pageSize) {
         if (!testInputAfter(this.form.pageSize, false, true)) {
           alert('页面大小必须为两个用空格隔开的整数')
-          return null
+          return false
         }
         const dimension = this.form.pageSize.trim().split(/[ ]+/)
         this.pageStyle.width = parseInt(dimension[0]) + 'px'
         this.pageStyle.height = parseInt(dimension[1]) + 'px'
       }
       if (this.form.pagePadding) {
+        if (!testInputAfter(this.form.pagePadding, false, false)) {
+          alert('页面边距必须为一个整数')
+          return false
+        }
         this.pageStyle.padding = parseInt(this.form.pagePadding) + 'px'
       }
     },
@@ -372,6 +376,12 @@ export default {
         let item
         for (item of this.items) {
           if (id === item.dataID) {
+            this.alertStyle.display = 'block'
+            return false
+          }
+        }
+        if (this.form.textSize) {
+          if (!testInputAfter(this.form.textSize, false, false)) {
             this.alertStyle.display = 'block'
             return false
           }
@@ -412,6 +422,12 @@ export default {
     // 创建线条 无法一次创建多个线条 需要vue
     onCreateLine(name) {
       const length = LINE_LENGTH
+      if (this.form.lineBorderWidth) {
+        if (!testInputAfter(this.form.lineBorderWidth, false, false)) {
+          alert('宽度必须为一个整数')
+          return false
+        }
+      }
       let border = this.form.lineBorderWidth ? this.form.lineBorderWidth + 'px ' : LINE_WIDTH + ' '
       border += this.form.lineIsDotted ? 'dashed ' : 'solid '
       border += 'black'
@@ -437,9 +453,9 @@ export default {
     // 加载图片 所有图片都在src/assests/print_images/当中
     onUpLoadImg() {
       if (!this.form.inputImg) return false
-      if (this.form.imgOpacity & !testInputAfter(this.form.imgOpacity, true, false)) {
+      if (this.form.imgOpacity && !testInputAfter(this.form.imgOpacity, true, false)) {
         alert('清晰度必须为一个小数')
-        return null
+        return false
       }
       const name = this.form.inputImg.split('\\')[2]
       this.imgSrc = require('@/assets/print_images/' + name)
@@ -496,11 +512,15 @@ export default {
         step[0] = GRID_SPACING
         step[1] = GRID_SPACING
       } else {
+        if (!testInputAfter(this.form.gridSpacing, false, false)) {
+          alert('网格宽高必须为一个或两个整数')
+          return false
+        }
         step = this.form.gridSpacing.split(/[ ]+/)
         step[0] = parseInt(step[0])
         step[1] = parseInt(step[1])
       }
-      if (step[0] === 0 | step[1] === 0) return null
+      if (step[0] === 0 | step[1] === 0) return false
       // 生成网格
       for (let i = 0; i < 3; i++) {
         gridGenerate(cxt, step[0] * Math.pow(2, i), step[1] * Math.pow(2, i), GRID_LINE_WIDTH)
@@ -512,7 +532,7 @@ export default {
       // 必须选择两个或两个以上的元素
       if (selectedEle.length < 2) {
         alert('请选择至少2个元素')
-        return null
+        return false
       }
       // 找到基准的位置
       let offset
@@ -537,7 +557,7 @@ export default {
     onSpacing() {
       if (selectedEle.length < 3) {
         alert('请选择至少三个元素')
-        return null
+        return false
       }
 
       // 判断间距方向
@@ -548,10 +568,13 @@ export default {
         return parseInt(getComputedStyle(a, null)[direction]) -
                parseInt(getComputedStyle(b, null)[direction])
       })
-
       // 设置元素的间距
       let offset
       if (this.form.spacingDistance) {
+        if (!testInputAfter(this.form.spacingDistance, false, false)) {
+          alert('间距必须为一个整数')
+          return false
+        }
         offset = parseInt(this.form.spacingDistance)
       } else {
         // 计算元素的间距 如果用户没有规定间距
@@ -758,19 +781,20 @@ export default {
     // 检测用户‘正在输入时’输入是否正确
     // 如果不正确 则删除最后以为字符
     testInput(e, isDouble, allowMultiple) {
-      const value = e.target.value
+      // 替换中文
+      const value = e.target.value.replace(/[\u4e00-\u9fa5]/ig, '')
       // 禁止任何非0-9，空格，小数点之外的输入
       const rule0 = /([^0-9 .]|^[ ]+)/g
       if (rule0.test(value)) {
         e.target.value = value.substring(0, value.length - 1)
-        return null
+        return false
       }
       if (!allowMultiple) {
         // 禁止空格键
         const rule1 = /[ ]/g
         if (rule1.test(value)) {
           e.target.value = value.substring(0, value.length - 1)
-          return null
+          return false
         }
       }
       if (!isDouble) {
@@ -778,7 +802,7 @@ export default {
         const rule2 = /(((^|[ ])(0))|[\.])/g
         if (rule2.test(value)) {
           e.target.value = value.substring(0, value.length - 1)
-          return null
+          return false
         }
       } else {
         // 一个数字禁止有多个小数点
@@ -788,7 +812,7 @@ export default {
         const rule4 = /(^|[ ])(\.|0\d)/g
         if (rule3.test(value) | rule4.test(value)) {
           e.target.value = value.substring(0, value.length - 1)
-          return null
+          return false
         }
       }
     }
@@ -858,6 +882,11 @@ function gridGenerate(cxt, stepx, stepy, lineWidth) {
 
 function testInputAfter(userInput, isDouble, isMultiple) {
   const input = userInput.trim()
+  const rule0 = /([^0-9 .]|^[ ]+)/g
+  if (rule0.test(input)) {
+    console.log('abcs')
+    return false
+  }
   if (isDouble) {
     const rule5 = /(\. |\.$)/g
     if (rule5.test(input)) {
