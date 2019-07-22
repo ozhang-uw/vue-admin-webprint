@@ -880,6 +880,7 @@ function gridGenerate(cxt, stepx, stepy, lineWidth) {
   }
 }
 
+// 测试输入完成是是否符合规则
 function testInputAfter(userInput, isDouble, isMultiple) {
   const input = userInput.trim()
   const rule0 = /([^0-9 .]|^[ ]+)/g
